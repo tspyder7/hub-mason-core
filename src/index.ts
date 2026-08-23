@@ -1,5 +1,5 @@
 const main = () => {
-    console.log('@hub-mason/core');
+    console.log('hub-mason-core');
 };
 
 main();
