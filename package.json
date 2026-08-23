@@ -1,7 +1,7 @@
 {
     "name": "@hub-mason/core",
     "description": "Shared utilities, helpers, and common modules for the Hub Mason ecosystem.",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "type": "module",
     "private": true,
     "author": "tspyder7",
