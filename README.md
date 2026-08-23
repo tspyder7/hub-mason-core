@@ -13,8 +13,28 @@ The package centralizes common functionality to prevent duplication and keep sha
 
 ## Installation
 
+- Using `npm`
+
 ```bash
 npm install @hub-mason/core
+```
+
+- Using `bun`
+
+```bash
+bun add @hub-mason/core
+```
+
+- Using `pnpm`
+
+```bash
+pnpm add @hub-mason/core
+```
+
+- Using `yarn`
+
+```bash
+yarn add @hub-mason/core
 ```
 
 ## Usage
