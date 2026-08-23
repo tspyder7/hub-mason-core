@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.0.3...hub-mason-core-v1.0.4) (2026-08-23)
+
+
+### Bug Fixes
+
+* **package:** changed package name to fix npm publish scope issue ([#7](https://github.com/tspyder7/hub-mason-core/issues/7)) ([3070b53](https://github.com/tspyder7/hub-mason-core/commit/3070b53b2944ec108127e19389c76303d6a337d7))
+
 ## [1.0.3](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.0.2...hub-mason-core-v1.0.3) (2026-08-23)
 
 
