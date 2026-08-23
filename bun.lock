@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@hub-mason/core",
+      "name": "hub-mason-core",
       "dependencies": {
         "@actions/github": "^9.1.1",
         "@github/issue-parser": "^2.0.0",

@@ -16,33 +16,33 @@ The package centralizes common functionality to prevent duplication and keep sha
 - Using `npm`
 
 ```bash
-npm install @hub-mason/core
+npm install hub-mason-core
 ```
 
 - Using `bun`
 
 ```bash
-bun add @hub-mason/core
+bun add hub-mason-core
 ```
 
 - Using `pnpm`
 
 ```bash
-pnpm add @hub-mason/core
+pnpm add hub-mason-core
 ```
 
 - Using `yarn`
 
 ```bash
-yarn add @hub-mason/core
+yarn add hub-mason-core
 ```
 
 ## Usage
 
-Import the required modules from `@hub-mason/core`:
+Import the required modules from `hub-mason-core`:
 
 ```ts
-import { ... } from "@hub-mason/core";
+import { ... } from "hub-mason-core";
 ```
 
 ## What Belongs Here
