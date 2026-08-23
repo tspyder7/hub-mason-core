@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.0.2...hub-mason-core-v1.0.3) (2026-08-23)
+
+
+### Bug Fixes
+
+* **publish:** made package public for npm publish ([#5](https://github.com/tspyder7/hub-mason-core/issues/5)) ([6053799](https://github.com/tspyder7/hub-mason-core/commit/6053799ce337bf9801a1c0eca8ce2d21c9e1da68))
+
 ## [1.0.2](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.0.1...hub-mason-core-v1.0.2) (2026-08-23)
 
 
