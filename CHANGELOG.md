@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.0.1...hub-mason-core-v1.0.2) (2026-08-23)
+
+
+### Bug Fixes
+
+* **readme:** updated readme to include installation steps using bun, yarn, pnpm ([#3](https://github.com/tspyder7/hub-mason-core/issues/3)) ([e4310cc](https://github.com/tspyder7/hub-mason-core/commit/e4310cc145abaff491fcc145faba6b49b1aeb5ce))
+
 ## [1.0.1](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.0.0...hub-mason-core-v1.0.1) (2026-08-23)
 
 
