@@ -69,7 +69,7 @@ jobs:
         {
           "uses": "tspyder7/github-actions-lib/actions/npm-publish@main",
           "with": {
-            "package-manager": "pnpm",
+            "package-manager": "bun",
             "node-version": "24",
             "registry-url": "https://registry.npmjs.org/",
             "publish-tag": "${{ needs.setup-release.outputs.release-type }}"
