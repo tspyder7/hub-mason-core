@@ -2,8 +2,11 @@ import { createSignature, verifySignature } from '../security/sign';
 import { requestContextSchema } from '../schemas/request-context.schema';
 import { ValidationError } from './errors';
 
-import type { LifecycleSnapshot } from '../../types/snapshot';
-import type { RequestContext } from '../../types/request-context';
+import type {
+    CreateDispatchContextProps,
+    ParseDispatchContextProps,
+    RequestContext,
+} from '../../types/request-context';
 
 export type { LifecycleSnapshot } from '../../types/snapshot';
 export type { RequestContext } from '../../types/request-context';
@@ -14,14 +17,9 @@ export type { RequestContext } from '../../types/request-context';
  * @param props - Snapshot, request ID/type, issue timestamp, secret, and actor.
  * @returns Signed request context.
  */
-export const createDispatchContext = <S extends string>(props: {
-    snapshot: LifecycleSnapshot<S>;
-    requestId: string;
-    requestType: string;
-    issuedAt: string;
-    secret: string;
-    actor?: string;
-}): RequestContext<S> => {
+export const createDispatchContext = <S extends string>(
+    props: CreateDispatchContextProps<S>,
+): RequestContext<S> => {
     const signature = createSignature({
         requestId: props.requestId,
         issuedAt: props.issuedAt,
@@ -47,10 +45,9 @@ export const createDispatchContext = <S extends string>(props: {
  * @returns Verified request context.
  * @throws When input is missing, malformed, expired, or signature invalid.
  */
-export const parseDispatchContext = <S extends string>(props: {
-    inputs: { context?: string; request?: string };
-    secret: string;
-}): RequestContext<S> => {
+export const parseDispatchContext = <S extends string>(
+    props: ParseDispatchContextProps,
+): RequestContext<S> => {
     const raw = props.inputs.context ?? '';
 
     if (!raw) {

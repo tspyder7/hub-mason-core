@@ -4,6 +4,11 @@ import { lifecycleSnapshotSchema } from '../schemas/snapshot.schema';
 import { MemoryStore } from '../store/memory-store';
 
 import type { LifecycleConfig } from '../../types/config';
+import type {
+    FromSnapshotProps,
+    GetSnapshotWithMetaProps,
+    LifecycleManagerProps,
+} from '../../types/manager';
 import type { LifecycleSnapshot } from '../../types/snapshot';
 import type {
     Reporter,
@@ -34,13 +39,7 @@ export class LifecycleManager<S extends string> {
      * @param props - Step definitions, config, store, reporter, and clock.
      * @throws When config is invalid, ids collide, or self-transitions exist.
      */
-    constructor(props: {
-        definitions: readonly StepDefinition[];
-        config: LifecycleConfig<S>;
-        store: StepStore<S>;
-        reporter?: Reporter<S>;
-        clock?: () => string;
-    }) {
+    constructor(props: LifecycleManagerProps<S>) {
         lifecycleConfigSchema.parse(props.config);
 
         const defIds = props.definitions.map(({ id }) => id);
@@ -132,12 +131,7 @@ export class LifecycleManager<S extends string> {
      * @param props - Request ID plus optional type, timestamp, and portal version.
      * @returns Lifecycle snapshot with supplied metadata.
      */
-    getSnapshotWithMeta(props: {
-        requestId: string;
-        requestType?: string;
-        createdAt?: string;
-        portalVersion?: string;
-    }): LifecycleSnapshot<S> {
+    getSnapshotWithMeta(props: GetSnapshotWithMetaProps): LifecycleSnapshot<S> {
         const steps = this.store.get();
 
         return {
@@ -160,12 +154,9 @@ export class LifecycleManager<S extends string> {
      * @returns New manager bound to the parsed snapshot.
      * @throws When the snapshot fails schema validation.
      */
-    static fromSnapshot<S extends string>(props: {
-        snapshot: unknown;
-        store?: StepStore<S>;
-        reporter?: Reporter<S>;
-        clock?: () => string;
-    }): LifecycleManager<S> {
+    static fromSnapshot<S extends string>(
+        props: FromSnapshotProps<S>,
+    ): LifecycleManager<S> {
         const parsed = lifecycleSnapshotSchema.parse(
             props.snapshot,
         ) as unknown as LifecycleSnapshot<S>;

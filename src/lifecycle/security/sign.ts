@@ -2,17 +2,18 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 
 import { ExpiredError, SignatureError } from '../core/errors';
 
+import type {
+    CreateSignatureProps,
+    VerifySignatureProps,
+} from '../../types/sign';
+
 /**
  * Creates an HMAC-SHA256 signature over `requestId.issuedAt`.
  *
  * @param props - Request ID, issue timestamp, and shared secret.
  * @returns Hex-encoded signature.
  */
-export const createSignature = (props: {
-    requestId: string;
-    issuedAt: string;
-    secret: string;
-}): string => {
+export const createSignature = (props: CreateSignatureProps): string => {
     const payload = `${props.requestId}.${props.issuedAt}`;
 
     return createHmac('sha256', props.secret)
@@ -26,13 +27,7 @@ export const createSignature = (props: {
  * @param props - Signature, request ID, issue timestamp, secret, optional skew.
  * @throws When issuedAt is in future, expired, or signature mismatches.
  */
-export const verifySignature = (props: {
-    signature: string;
-    requestId: string;
-    issuedAt: string;
-    secret: string;
-    skewMs?: number;
-}): void => {
+export const verifySignature = (props: VerifySignatureProps): void => {
     const skewMs = props.skewMs ?? 30 * 60 * 1000;
     const now = Date.now();
     const issued = Date.parse(props.issuedAt);
