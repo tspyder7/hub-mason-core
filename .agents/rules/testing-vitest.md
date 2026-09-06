@@ -13,17 +13,20 @@ alwaysApply: true
 - Every public function should have tests.
 - Tests should verify behaviour, not implementation.
 - Follow Arrange → Act → Assert.
+- Add empty lines between phases only for visual segregation when a phase has multiple lines.
+- Skip empty lines when the whole test body is 3 lines or fewer.
+- Do not add `// Arrange`, `// Act`, or `// Assert` comments.
 - Each test should validate one behaviour.
 
 Example
 
 ```ts
-it('throws when repository does not exist', async () => {
-    // Arrange
+it('describes the expected behaviour', async () => {
+    const input = { id: 1 };
 
-    // Act
+    const result = await doSomething(input);
 
-    // Assert
+    expect(result).toEqual({ id: 1, status: 'done' });
 });
 ```
 

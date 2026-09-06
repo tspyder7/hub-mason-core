@@ -1,4 +1,25 @@
 {
     "$schema": "https://opencode.ai/config.json",
-    "instructions": [".agents/rules/*.md"]
+    "instructions": [".agents/rules/*.md"],
+    "permission": {
+        "bash": {
+            "gh auth status*": "allow",
+            "gh repo view*": "allow",
+            "gh pr view*": "allow",
+            "gh api graphql*": "allow",
+            "gh api repos/*": "allow",
+            "*addPullRequestReviewThreadReply*": "ask",
+            "*resolveReviewThread*": "ask",
+            "*/comments/*/replies*": "ask",
+            "gh cache delete*": "deny",
+            "gh release delete*": "deny",
+            "gh repo delete*": "deny",
+            "gh pr delete*": "deny",
+            "gh issue delete*": "deny",
+            "gh secret delete*": "deny",
+            "gh variable delete*": "deny",
+            "* -X DELETE*": "deny",
+            "*--method DELETE*": "deny"
+        }
+    }
 }
