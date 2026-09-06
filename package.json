@@ -8,8 +8,14 @@
     "files": [
         "dist",
         "LICENSE",
+        "CHANGELOG.md",
         "README.md"
     ],
+    "exports": {
+        "./lifecycle/schemas": null,
+        "./lifecycle/schemas/*": null,
+        "./*": "./dist/*.js"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/tspyder7/hub-mason-core.git"
@@ -18,7 +24,7 @@
         "node": ">= 24"
     },
     "scripts": {
-        "build": "tsc --project tsconfig.build.json",
+        "build": "bun run clean && tsc --project tsconfig.build.json",
         "lint": "eslint",
         "format": "prettier --write \"**/*.+(js|ts)\"",
         "prepare": "husky",
