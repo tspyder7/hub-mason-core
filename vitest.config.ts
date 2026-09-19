@@ -10,6 +10,11 @@ export default defineConfig({
         },
     },
     test: {
+        typecheck: {
+            enabled: true,
+            include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
+            ignoreSourceErrors: false,
+        },
         setupFiles: ['./tests/fixtures/setup.ts'],
         globals: true,
         coverage: {
