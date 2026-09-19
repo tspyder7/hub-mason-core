@@ -11,11 +11,6 @@
         "CHANGELOG.md",
         "README.md"
     ],
-    "exports": {
-        "./lifecycle/schemas": null,
-        "./lifecycle/schemas/*": null,
-        "./*": "./dist/*.js"
-    },
     "repository": {
         "type": "git",
         "url": "https://github.com/tspyder7/hub-mason-core.git"
@@ -81,5 +76,14 @@
             "prettier --write",
             "eslint --max-warnings 0 ."
         ]
+    },
+    "exports": {
+        "./lifecycle/schemas": null,
+        "./lifecycle/schemas/*": null,
+        "./github/event": "./dist/github/event/index.js",
+        "./github/issues": "./dist/github/issues/index.js",
+        "./github/repository": "./dist/github/repository/index.js",
+        "./github/client": "./dist/github/client/index.js",
+        "./*": "./dist/*.js"
     }
 }
