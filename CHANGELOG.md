@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.1.0...hub-mason-core-v1.1.1) (2026-09-19)
+
+
+### Bug Fixes
+
+* added tsc-alias to fix alias in build ([#11](https://github.com/tspyder7/hub-mason-core/issues/11)) ([c62cabf](https://github.com/tspyder7/hub-mason-core/commit/c62cabfb679d66c227b6977bfa0fb7b3e338caa2))
+
 ## [1.1.0](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.0.4...hub-mason-core-v1.1.0) (2026-09-19)
 
 
