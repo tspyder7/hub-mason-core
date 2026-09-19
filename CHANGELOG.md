@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.1.0](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.0.4...hub-mason-core-v1.1.0) (2026-09-19)
+
+
+### Features
+
+* add GitHub API layer and lifecycle manager for repo-request bot ([891f79b](https://github.com/tspyder7/hub-mason-core/commit/891f79b95852fae9d834f922fbc98910da6030e5))
+* **github:** add authenticated Octokit client ([1a26865](https://github.com/tspyder7/hub-mason-core/commit/1a26865ed91793c451b62fae749f000fa373a8ef))
+* **github:** add event normalization and logging ([41ec7dd](https://github.com/tspyder7/hub-mason-core/commit/41ec7ddcd589f55d533352ca3cdcdfaed5a466ab))
+* **github:** add issue management utilities ([f2ab8e6](https://github.com/tspyder7/hub-mason-core/commit/f2ab8e65de5ef7b843a201180f790ecb8aaf8868))
+* **github:** add repository management utilities ([149e800](https://github.com/tspyder7/hub-mason-core/commit/149e80014c9da239ebbdb397cd7097a4d71aff7e))
+* **github:** add status comment and label reporters ([140e635](https://github.com/tspyder7/hub-mason-core/commit/140e635c9fd94c671a8635ee5055b6255571439a))
+* **lifecycle:** add lifecycle manager with schema validation ([f3ecf17](https://github.com/tspyder7/hub-mason-core/commit/f3ecf17f17d71a015d07323ccef34c1826582419))
+* **logger:** add shared pino logger with test infrastructure ([b67a8f0](https://github.com/tspyder7/hub-mason-core/commit/b67a8f0cc2d4b2e0471d622386f2d92647175be4))
+* **markdown:** add mdast node factory helpers ([51b9640](https://github.com/tspyder7/hub-mason-core/commit/51b964052cc1442c8903b40ab6fca28a798a421a))
+* **types:** add core domain type definitions ([cfb626a](https://github.com/tspyder7/hub-mason-core/commit/cfb626aafcc9fa39d847a30112ddef311f1a4c21))
+
 ## [1.0.4](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.0.3...hub-mason-core-v1.0.4) (2026-08-23)
 
 
