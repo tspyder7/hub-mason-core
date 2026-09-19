@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.2.0...hub-mason-core-v1.2.1) (2026-09-19)
+
+
+### Bug Fixes
+
+* added package import for standardization ([#15](https://github.com/tspyder7/hub-mason-core/issues/15)) ([7e0566c](https://github.com/tspyder7/hub-mason-core/commit/7e0566ca0293a5d1506da97b9f3e56709bbe1893))
+
 ## [1.2.0](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.1.1...hub-mason-core-v1.2.0) (2026-09-19)
 
 
