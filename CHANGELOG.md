@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.1.1...hub-mason-core-v1.2.0) (2026-09-19)
+
+
+### Features
+
+* updated tsconfig to generate declarations ([#13](https://github.com/tspyder7/hub-mason-core/issues/13)) ([1571e99](https://github.com/tspyder7/hub-mason-core/commit/1571e9989fa45e000625c78183dfe93023c09538))
+
 ## [1.1.1](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.1.0...hub-mason-core-v1.1.1) (2026-09-19)
 
 
