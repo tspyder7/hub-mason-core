@@ -1,7 +1,7 @@
 {
     "name": "hub-mason-core",
     "description": "Shared utilities, helpers, and common modules for the Hub Mason ecosystem.",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "type": "module",
     "author": "tspyder7",
     "license": "MIT",
