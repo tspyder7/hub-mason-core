@@ -15,6 +15,10 @@ import {
     tableRow,
     text,
 } from '../../markdown/tags';
+import type {
+    RenderStatusCommentProps,
+    RenderSummaryProps,
+} from '../../types/reporter';
 import type { Step, WorkflowMeta } from '../../types/step';
 
 const toMarkdownRoot = (children: Root['children']): string =>
@@ -23,9 +27,9 @@ const toMarkdownRoot = (children: Root['children']): string =>
         { extensions: [gfmTableToMarkdown({ tablePipeAlign: false })] },
     );
 
-const renderStepRow = <S extends string>(input: {
-    step: Step<S>;
-    emoji: Partial<Record<S, string>>;
+const renderStepRow = <Status extends string>(input: {
+    step: Step<Status>;
+    emoji: Partial<Record<Status, string>>;
 }): TableRow =>
     tableRow([
         tableCell([text(input.step.name)]),
@@ -39,8 +43,8 @@ const renderStepRow = <S extends string>(input: {
         ]),
     ]);
 
-const renderFailedStep = <S extends string>(
-    step: Step<S>,
+const renderFailedStep = <Status extends string>(
+    step: Step<Status>,
 ): Array<Paragraph | Blockquote | Code> => [
     paragraph([text('Failed at step: '), strong(step.name)]),
     blockquote([paragraph([text(step.error?.message ?? 'Unknown error')])]),
@@ -64,13 +68,9 @@ const renderWorkflowRun = (meta: WorkflowMeta): Paragraph | null => {
  * @param input - Steps, workflow meta, emoji map, and failure detection.
  * @returns Markdown comment body.
  */
-export const renderStatusComment = <S extends string>(input: {
-    steps: readonly Step<S>[];
-    meta: WorkflowMeta;
-    emoji: Partial<Record<S, string>>;
-    failedStatusFilter?: (status: S) => boolean;
-    runError?: { message: string; stack?: string } | null;
-}): string => {
+export const renderStatusComment = <Status extends string>(
+    input: RenderStatusCommentProps<Status>,
+): string => {
     const failedSteps = input.failedStatusFilter
         ? input.steps.filter((s) => input.failedStatusFilter!(s.status))
         : input.steps.filter((s) => s.status.toLowerCase().includes('fail'));
@@ -125,13 +125,9 @@ export const renderStatusComment = <S extends string>(input: {
  * @param input - Steps, workflow meta, emoji map, and failure detection.
  * @returns Markdown summary body.
  */
-export const renderSummary = <S extends string>(input: {
-    steps: readonly Step<S>[];
-    meta: WorkflowMeta;
-    emoji: Partial<Record<S, string>>;
-    failedStatusFilter?: (status: S) => boolean;
-    runError?: { message: string; stack?: string } | null;
-}): string => {
+export const renderSummary = <Status extends string>(
+    input: RenderSummaryProps<Status>,
+): string => {
     const failedSteps = input.failedStatusFilter
         ? input.steps.filter((s) => input.failedStatusFilter!(s.status))
         : input.steps.filter((s) => s.status.toLowerCase().includes('fail'));

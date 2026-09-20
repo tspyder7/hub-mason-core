@@ -1,16 +1,13 @@
 import type { Label } from '@octokit/webhooks-types';
-import type { Repository } from '@/src/types/repository';
+import type {
+    CreateGithubLabelReporterProps,
+    GithubLabelReporter,
+    LabelTransitionCallback,
+} from '@/src/types/reporter';
 import { logger } from '@/src/utils/logger';
 import { addLabelToIssue } from '@/src/github/issues/add-label';
 import { getLabelsFromIssue } from '@/src/github/issues/get-labels';
 import { removeLabelFromIssue } from '@/src/github/issues/remove-label';
-import type { Reporter } from '@/src/types/step';
-
-type TransitionEvent = Parameters<
-    NonNullable<Reporter<string>['onTransition']>
->[0];
-
-type TransitionCallback = (event?: TransitionEvent) => void | Promise<void>;
 
 /**
  * Creates a status-label reporter that swaps `<prefix>*` labels atomically.
@@ -21,14 +18,9 @@ type TransitionCallback = (event?: TransitionEvent) => void | Promise<void>;
  * @param input - Repository, issue number, and label prefix to manage.
  * @returns Object with `updateStatus` and `onTransition` handlers.
  */
-export const createGithubLabelReporter = (input: {
-    repository: Repository;
-    issueNumber: number;
-    labelPrefix: string;
-}): {
-    onTransition: (callback?: TransitionCallback) => Promise<void>;
-    updateStatus: (to: Label) => Promise<void>;
-} => {
+export const createGithubLabelReporter = (
+    input: CreateGithubLabelReporterProps,
+): GithubLabelReporter => {
     const removeStatusLabel = async (
         label: Label,
     ): Promise<
@@ -110,7 +102,9 @@ export const createGithubLabelReporter = (input: {
 
     return {
         updateStatus,
-        onTransition: async (callback?: TransitionCallback): Promise<void> => {
+        onTransition: async (
+            callback?: LabelTransitionCallback,
+        ): Promise<void> => {
             if (typeof callback === 'function') {
                 await callback();
             }
