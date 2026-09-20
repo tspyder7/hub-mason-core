@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.2.1...hub-mason-core-v1.3.0) (2026-09-20)
+
+
+### Features
+
+* add bound steps with fail and rename ([#17](https://github.com/tspyder7/hub-mason-core/issues/17)) ([0859ded](https://github.com/tspyder7/hub-mason-core/commit/0859dedcc8914e8f070e1f677125b1d56d99cb4a))
+
 ## [1.2.1](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.2.0...hub-mason-core-v1.2.1) (2026-09-19)
 
 
