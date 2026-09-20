@@ -1,5 +1,8 @@
-import type { Repository } from '@/src/types/repository';
-import type { Reporter, WorkflowMeta } from '@/src/types/step';
+import type {
+    CreateGithubCommentReporterProps,
+    PostSummaryCommentProps,
+} from '@/src/types/reporter';
+import type { Reporter } from '@/src/types/step';
 import { addCommentToIssue } from '@/src/github/issues/add-comment';
 import { updateCommentOnIssue } from '@/src/github/issues/update-comment';
 import { withUnlockedIssue } from '@/src/github/issues/with-lock';
@@ -13,16 +16,9 @@ import { renderStatusComment, renderSummary } from './renderer';
  * @param input - Repository, issue, workflow meta, emoji map, and comment-ID accessors.
  * @returns Reporter with `onTransition` handler.
  */
-export const createGithubCommentReporter = <S extends string>(input: {
-    repository: Repository;
-    issueNumber: number;
-    meta: WorkflowMeta;
-    emoji: Partial<Record<S, string>>;
-    failedStatusFilter?: (status: S) => boolean;
-    getCommentId?: () => number | undefined;
-    setCommentId?: (id: number) => void;
-    runError?: { message: string; stack?: string } | null;
-}): Reporter<S> => ({
+export const createGithubCommentReporter = <Status extends string>(
+    input: CreateGithubCommentReporterProps<Status>,
+): Reporter<Status> => ({
     onTransition: async ({ all }) => {
         const body = renderStatusComment({
             steps: all,
@@ -62,15 +58,9 @@ export const createGithubCommentReporter = <S extends string>(input: {
  * @param input - Repository, issue, workflow meta, steps, and emoji map.
  * @throws Rethrows GitHub API errors.
  */
-export const postSummaryComment = async <S extends string>(input: {
-    repository: Repository;
-    issueNumber: number;
-    meta: WorkflowMeta;
-    steps: readonly import('@/src/types/step').Step<S>[];
-    emoji: Partial<Record<S, string>>;
-    failedStatusFilter?: (status: S) => boolean;
-    runError?: { message: string; stack?: string } | null;
-}): Promise<void> => {
+export const postSummaryComment = async <Status extends string>(
+    input: PostSummaryCommentProps<Status>,
+): Promise<void> => {
     const body = renderSummary({
         steps: input.steps,
         meta: input.meta,

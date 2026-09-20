@@ -17,9 +17,12 @@ export type { RequestContext } from '../../types/request-context';
  * @param props - Snapshot, request ID/type, issue timestamp, secret, and actor.
  * @returns Signed request context.
  */
-export const createDispatchContext = <S extends string>(
-    props: CreateDispatchContextProps<S>,
-): RequestContext<S> => {
+export const createDispatchContext = <
+    Status extends string,
+    StepId extends string = string,
+>(
+    props: CreateDispatchContextProps<Status, StepId>,
+): RequestContext<Status, StepId> => {
     const signature = createSignature({
         requestId: props.requestId,
         issuedAt: props.issuedAt,
@@ -33,7 +36,7 @@ export const createDispatchContext = <S extends string>(
         signature,
         issuedAt: props.issuedAt,
         actor: props.actor,
-    } as unknown as RequestContext<S>;
+    } as unknown as RequestContext<Status, StepId>;
 };
 
 /**
@@ -45,9 +48,12 @@ export const createDispatchContext = <S extends string>(
  * @returns Verified request context.
  * @throws When input is missing, malformed, expired, or signature invalid.
  */
-export const parseDispatchContext = <S extends string>(
+export const parseDispatchContext = <
+    Status extends string,
+    StepId extends string = string,
+>(
     props: ParseDispatchContextProps,
-): RequestContext<S> => {
+): RequestContext<Status, StepId> => {
     const raw = props.inputs.context ?? '';
 
     if (!raw) {
@@ -62,9 +68,10 @@ export const parseDispatchContext = <S extends string>(
         throw new ValidationError('Invalid context JSON');
     }
 
-    const ctx = requestContextSchema.parse(
-        parsed,
-    ) as unknown as RequestContext<S>;
+    const ctx = requestContextSchema.parse(parsed) as unknown as RequestContext<
+        Status,
+        StepId
+    >;
 
     verifySignature({
         signature: ctx.signature,

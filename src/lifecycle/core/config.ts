@@ -11,9 +11,9 @@ export type { LifecycleConfig } from '../../types/config';
  * @returns The same config when valid.
  * @throws When schema validation fails.
  */
-export const createLifecycleConfig = <S extends string>(
-    config: LifecycleConfig<S>,
-): LifecycleConfig<S> => {
+export const createLifecycleConfig = <Status extends string>(
+    config: LifecycleConfig<Status>,
+): LifecycleConfig<Status> => {
     lifecycleConfigSchema.parse(config);
     return config;
 };

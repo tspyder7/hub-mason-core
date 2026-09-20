@@ -1,8 +1,10 @@
 /**
  * Static step metadata (stable ID plus display name).
+ *
+ * @template StepId - String union of step IDs.
  */
-export interface StepDefinition {
-    id: string;
+export interface StepDefinition<StepId extends string = string> {
+    id: StepId;
     name: string;
 }
 
@@ -17,12 +19,13 @@ export interface StepError {
 /**
  * Runtime step with status, timestamps, details, and optional error.
  *
- * @template S - String union of workflow statuses.
+ * @template Status - String union of workflow statuses.
+ * @template StepId - String union of step IDs.
  */
-export interface Step<S extends string> {
-    id: string;
+export interface Step<Status extends string, StepId extends string = string> {
+    id: StepId;
     name: string;
-    status: S;
+    status: Status;
     startedAt?: string;
     completedAt?: string;
     details: string[];
@@ -32,42 +35,56 @@ export interface Step<S extends string> {
 /**
  * Storage contract for step lists.
  *
- * @template S - String union of workflow statuses.
+ * @template Status - String union of workflow statuses.
+ * @template StepId - String union of step IDs.
  */
-export interface StepStore<S extends string> {
+export interface StepStore<
+    Status extends string,
+    StepId extends string = string,
+> {
     /** Returns current steps. */
-    get(): readonly Step<S>[];
+    get(): readonly Step<Status, StepId>[];
     /**
      * Replaces steps via updater.
      *
      * @param updater - Maps previous steps to next steps.
      */
-    set(updater: (prev: readonly Step<S>[]) => readonly Step<S>[]): void;
+    set(
+        updater: (
+            prev: readonly Step<Status, StepId>[],
+        ) => readonly Step<Status, StepId>[],
+    ): void;
     /**
      * Subscribes to step changes.
      *
      * @param callback - Invoked with latest steps.
      * @returns Unsubscribe function.
      */
-    subscribe?(callback: (steps: readonly Step<S>[]) => void): () => void;
+    subscribe?(
+        callback: (steps: readonly Step<Status, StepId>[]) => void,
+    ): () => void;
 }
 
 /**
  * Observer notified on step transitions and detail changes.
  *
- * @template S - String union of workflow statuses.
+ * @template Status - String union of workflow statuses.
+ * @template StepId - String union of step IDs.
  */
-export interface Reporter<S extends string> {
+export interface Reporter<
+    Status extends string,
+    StepId extends string = string,
+> {
     /**
      * Handles a step transition.
      *
      * @param event - Changed step, from/to statuses, and full list.
      */
     onTransition?: (event: {
-        step: Step<S>;
-        from: S;
-        to: S;
-        all: readonly Step<S>[];
+        step: Step<Status, StepId>;
+        from: Status;
+        to: Status;
+        all: readonly Step<Status, StepId>[];
     }) => Promise<void> | void;
 }
 
@@ -86,11 +103,23 @@ export interface WorkflowMeta {
 /**
  * Type-safe step helpers bound to a definition list.
  *
- * @template T - Readonly step definition tuple.
+ * @template Definitions - Readonly step definition tuple.
  */
-export type BoundSteps<T extends readonly StepDefinition[]> = {
-    beginStep: (id: T[number]['id'], name?: string) => Promise<void>;
-    finishStep: (id: T[number]['id']) => Promise<void>;
-    failStep: (id: T[number]['id'], error: unknown) => Promise<void>;
-    addStepDetails: (id: T[number]['id'], detail: string) => Promise<void>;
-};
+export type BoundSteps<Definitions extends readonly StepDefinition<string>[]> =
+    {
+        beginStep: (
+            id: Definitions[number]['id'],
+            name?: string,
+        ) => Promise<void>;
+        finishStep: (id: Definitions[number]['id']) => Promise<void>;
+        failStep: (
+            id: Definitions[number]['id'],
+            error: unknown,
+        ) => Promise<void>;
+        addStepDetails: (
+            id: Definitions[number]['id'],
+            detail: string,
+        ) => Promise<void>;
+        failActive: (error: unknown) => Promise<void>;
+        cancelPending: () => void;
+    };

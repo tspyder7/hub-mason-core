@@ -3,19 +3,24 @@ import type { Step, StepStore } from '../../types/step';
 /**
  * In-memory step store with subscription support.
  *
- * @template S - String union of workflow statuses.
+ * @template Status - String union of workflow statuses.
+ * @template StepId - String union of step IDs.
  */
-export class MemoryStore<S extends string> implements StepStore<S> {
-    private steps: Step<S>[];
+export class MemoryStore<
+    Status extends string,
+    StepId extends string = string,
+> implements StepStore<Status, StepId> {
+    private steps: Step<Status, StepId>[];
 
-    private listeners: Set<(steps: readonly Step<S>[]) => void> = new Set();
+    private listeners: Set<(steps: readonly Step<Status, StepId>[]) => void> =
+        new Set();
 
     /**
      * Seeds the store with an initial step list.
      *
      * @param initial - Initial steps, copied defensively.
      */
-    constructor(initial: Step<S>[] = []) {
+    constructor(initial: Step<Status, StepId>[] = []) {
         this.steps = [...initial];
     }
 
@@ -24,7 +29,7 @@ export class MemoryStore<S extends string> implements StepStore<S> {
      *
      * @returns Readonly step list.
      */
-    get(): readonly Step<S>[] {
+    get(): readonly Step<Status, StepId>[] {
         return this.steps;
     }
 
@@ -33,7 +38,11 @@ export class MemoryStore<S extends string> implements StepStore<S> {
      *
      * @param updater - Maps previous steps to next steps.
      */
-    set(updater: (prev: readonly Step<S>[]) => readonly Step<S>[]): void {
+    set(
+        updater: (
+            prev: readonly Step<Status, StepId>[],
+        ) => readonly Step<Status, StepId>[],
+    ): void {
         this.steps = [...updater(this.steps)];
         this.listeners.forEach((cb) => cb(this.steps));
     }
@@ -44,7 +53,9 @@ export class MemoryStore<S extends string> implements StepStore<S> {
      * @param callback - Invoked with latest steps on each set.
      * @returns Unsubscribe function.
      */
-    subscribe(callback: (steps: readonly Step<S>[]) => void): () => void {
+    subscribe(
+        callback: (steps: readonly Step<Status, StepId>[]) => void,
+    ): () => void {
         this.listeners.add(callback);
         return () => this.listeners.delete(callback);
     }
