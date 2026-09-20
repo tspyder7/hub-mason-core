@@ -4,13 +4,17 @@ import type { Reporter, StepDefinition, StepStore } from './step';
 /**
  * Props for constructing a LifecycleManager.
  *
- * @template S - String union of workflow statuses.
+ * @template Status - String union of workflow statuses.
+ * @template StepId - String union of step IDs.
  */
-export type LifecycleManagerProps<S extends string> = {
-    definitions: readonly StepDefinition[];
-    config: LifecycleConfig<S>;
-    store: StepStore<S>;
-    reporter?: Reporter<S>;
+export type LifecycleManagerProps<
+    Status extends string,
+    StepId extends string = string,
+> = {
+    definitions: readonly StepDefinition<StepId>[];
+    config: LifecycleConfig<Status>;
+    store: StepStore<Status, StepId>;
+    reporter?: Reporter<Status, StepId>;
     clock?: () => string;
 };
 
@@ -27,11 +31,16 @@ export type GetSnapshotWithMetaProps = {
 /**
  * Props for rehydrating a manager from a serialized snapshot.
  *
- * @template S - String union of workflow statuses.
+ * @template Status - String union of workflow statuses.
+ * @template StepId - String union of step IDs.
  */
-export type FromSnapshotProps<S extends string> = {
+export type FromSnapshotProps<
+    Status extends string,
+    StepId extends string = string,
+> = {
     snapshot: unknown;
-    store?: StepStore<S>;
-    reporter?: Reporter<S>;
+    definitions?: readonly StepDefinition<StepId>[];
+    store?: StepStore<Status, StepId>;
+    reporter?: Reporter<Status, StepId>;
     clock?: () => string;
 };

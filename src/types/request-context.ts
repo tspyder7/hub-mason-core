@@ -3,12 +3,16 @@ import type { LifecycleSnapshot } from './snapshot';
 /**
  * Signed handoff payload between portal and engine.
  *
- * @template S - String union of workflow statuses.
+ * @template Status - String union of workflow statuses.
+ * @template StepId - String union of step IDs.
  */
-export interface RequestContext<S extends string> {
+export interface RequestContext<
+    Status extends string,
+    StepId extends string = string,
+> {
     requestId: string;
     requestType: string;
-    lifecycleSnapshot: LifecycleSnapshot<S>;
+    lifecycleSnapshot: LifecycleSnapshot<Status, StepId>;
     signature: string;
     issuedAt: string;
     actor?: string;
@@ -17,10 +21,14 @@ export interface RequestContext<S extends string> {
 /**
  * Props for creating a signed dispatch context.
  *
- * @template S - String union of workflow statuses.
+ * @template Status - String union of workflow statuses.
+ * @template StepId - String union of step IDs.
  */
-export type CreateDispatchContextProps<S extends string> = {
-    snapshot: LifecycleSnapshot<S>;
+export type CreateDispatchContextProps<
+    Status extends string,
+    StepId extends string = string,
+> = {
+    snapshot: LifecycleSnapshot<Status, StepId>;
     requestId: string;
     requestType: string;
     issuedAt: string;

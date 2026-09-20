@@ -4,12 +4,16 @@ import type { Step, StepDefinition } from './step';
 /**
  * Serializable lifecycle state: config, definitions, steps, and request metadata.
  *
- * @template S - String union of workflow statuses.
+ * @template Status - String union of workflow statuses.
+ * @template StepId - String union of step IDs.
  */
-export interface LifecycleSnapshot<S extends string> {
-    config: LifecycleConfig<S>;
-    definitions: readonly StepDefinition[];
-    steps: readonly Step<S>[];
+export interface LifecycleSnapshot<
+    Status extends string,
+    StepId extends string = string,
+> {
+    config: LifecycleConfig<Status>;
+    definitions: readonly StepDefinition<StepId>[];
+    steps: readonly Step<Status, StepId>[];
     meta: {
         requestId: string;
         requestType?: string;
