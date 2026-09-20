@@ -20,16 +20,20 @@ import type {
 /**
  * Orchestrates step state, transitions, snapshots, and reporter notifications.
  *
- * @template S - String union of workflow statuses.
+ * @template Status - String union of workflow statuses.
+ * @template StepId - String union of step IDs.
  */
-export class LifecycleManager<S extends string> {
-    private readonly definitions: readonly StepDefinition[];
+export class LifecycleManager<
+    Status extends string,
+    StepId extends string = string,
+> {
+    private readonly definitions: readonly StepDefinition<StepId>[];
 
-    private readonly config: LifecycleConfig<S>;
+    private readonly config: LifecycleConfig<Status>;
 
-    private readonly store: StepStore<S>;
+    private readonly store: StepStore<Status, StepId>;
 
-    private readonly reporter?: Reporter<S>;
+    private readonly reporter?: Reporter<Status, StepId>;
 
     private readonly clock: () => string;
 
@@ -39,7 +43,7 @@ export class LifecycleManager<S extends string> {
      * @param props - Step definitions, config, store, reporter, and clock.
      * @throws When config is invalid, ids collide, or self-transitions exist.
      */
-    constructor(props: LifecycleManagerProps<S>) {
+    constructor(props: LifecycleManagerProps<Status, StepId>) {
         lifecycleConfigSchema.parse(props.config);
 
         const defIds = props.definitions.map(({ id }) => id);
@@ -49,7 +53,7 @@ export class LifecycleManager<S extends string> {
             throw new ValidationError('Step definitions must have unique ids');
         }
 
-        for (const from of Object.keys(props.config.transitions) as S[]) {
+        for (const from of Object.keys(props.config.transitions) as Status[]) {
             const allowed = props.config.transitions[from] ?? [];
 
             if (allowed.includes(from)) {
@@ -84,7 +88,7 @@ export class LifecycleManager<S extends string> {
      *
      * @returns Readonly step list.
      */
-    get steps(): readonly Step<S>[] {
+    get steps(): readonly Step<Status, StepId>[] {
         return this.store.get();
     }
 
@@ -93,7 +97,7 @@ export class LifecycleManager<S extends string> {
      *
      * @returns Readonly step definitions.
      */
-    getDefinitions(): readonly StepDefinition[] {
+    getDefinitions(): readonly StepDefinition<StepId>[] {
         return this.definitions;
     }
 
@@ -102,7 +106,7 @@ export class LifecycleManager<S extends string> {
      *
      * @returns Lifecycle config.
      */
-    getConfig(): LifecycleConfig<S> {
+    getConfig(): LifecycleConfig<Status> {
         return this.config;
     }
 
@@ -111,7 +115,7 @@ export class LifecycleManager<S extends string> {
      *
      * @returns Lifecycle snapshot with generated timestamp.
      */
-    getSnapshot(): LifecycleSnapshot<S> {
+    getSnapshot(): LifecycleSnapshot<Status, StepId> {
         const steps = this.store.get();
 
         return {
@@ -122,7 +126,7 @@ export class LifecycleManager<S extends string> {
                 requestId: '',
                 createdAt: this.clock(),
             },
-        } as LifecycleSnapshot<S>;
+        } as LifecycleSnapshot<Status, StepId>;
     }
 
     /**
@@ -131,7 +135,9 @@ export class LifecycleManager<S extends string> {
      * @param props - Request ID plus optional type, timestamp, and portal version.
      * @returns Lifecycle snapshot with supplied metadata.
      */
-    getSnapshotWithMeta(props: GetSnapshotWithMetaProps): LifecycleSnapshot<S> {
+    getSnapshotWithMeta(
+        props: GetSnapshotWithMetaProps,
+    ): LifecycleSnapshot<Status, StepId> {
         const steps = this.store.get();
 
         return {
@@ -144,33 +150,43 @@ export class LifecycleManager<S extends string> {
                 createdAt: props.createdAt ?? this.clock(),
                 portalVersion: props.portalVersion,
             },
-        } as LifecycleSnapshot<S>;
+        } as LifecycleSnapshot<Status, StepId>;
     }
 
     /**
      * Rehydrates a manager from a serialized snapshot.
      *
-     * @param props - Raw snapshot plus optional store, reporter, and clock.
+     * Preserves literal status and ID types via explicit generics.
+     * Pass definitions to retain tuple literals lost in JSON round-trip.
+     *
+     * @param props - Raw snapshot plus optional definitions, store, reporter, and clock.
      * @returns New manager bound to the parsed snapshot.
      * @throws When the snapshot fails schema validation.
      */
-    static fromSnapshot<S extends string>(
-        props: FromSnapshotProps<S>,
-    ): LifecycleManager<S> {
+    static fromSnapshot<Status extends string, StepId extends string = string>(
+        props: FromSnapshotProps<Status, StepId>,
+    ): LifecycleManager<Status, StepId> {
         const parsed = lifecycleSnapshotSchema.parse(
             props.snapshot,
-        ) as unknown as LifecycleSnapshot<S>;
+        ) as unknown as LifecycleSnapshot<Status, StepId>;
 
-        const store: StepStore<S> =
-            props.store ?? new MemoryStore<S>(parsed.steps as Step<S>[]);
+        const definitions =
+            props.definitions ??
+            (parsed.definitions as StepDefinition<StepId>[]);
+
+        const store: StepStore<Status, StepId> =
+            props.store ??
+            new MemoryStore<Status, StepId>(
+                parsed.steps as Step<Status, StepId>[],
+            );
 
         if (props.store) {
-            store.set(() => parsed.steps as Step<S>[]);
+            store.set(() => parsed.steps as Step<Status, StepId>[]);
         }
 
-        return new LifecycleManager<S>({
-            definitions: parsed.definitions,
-            config: parsed.config as LifecycleConfig<S>,
+        return new LifecycleManager<Status, StepId>({
+            definitions,
+            config: parsed.config as LifecycleConfig<Status>,
             store,
             reporter: props.reporter,
             clock: props.clock,
@@ -185,7 +201,7 @@ export class LifecycleManager<S extends string> {
      * @returns Updated step.
      * @throws When the step is unknown, the status is unknown, or the transition is illegal.
      */
-    async transition(id: string, to: S): Promise<Step<S>> {
+    async transition(id: StepId, to: Status): Promise<Step<Status, StepId>> {
         const steps = this.store.get();
         const step = steps.find((s) => s.id === id);
 
@@ -207,7 +223,7 @@ export class LifecycleManager<S extends string> {
         }
 
         const now = this.clock();
-        const nextStep: Step<S> = {
+        const nextStep: Step<Status, StepId> = {
             ...step,
             status: to,
             startedAt: step.startedAt ?? now,
@@ -238,7 +254,7 @@ export class LifecycleManager<S extends string> {
      * @returns Updated step.
      * @throws When the step is unknown.
      */
-    async addDetail(id: string, detail: string): Promise<Step<S>> {
+    async addDetail(id: StepId, detail: string): Promise<Step<Status, StepId>> {
         const steps = this.store.get();
         const step = steps.find((s) => s.id === id);
 
@@ -246,7 +262,7 @@ export class LifecycleManager<S extends string> {
             throw new ValidationError(`Step not found: ${id}`);
         }
 
-        const nextStep: Step<S> = {
+        const nextStep: Step<Status, StepId> = {
             ...step,
             details: [...step.details, detail],
         };
@@ -269,6 +285,75 @@ export class LifecycleManager<S extends string> {
     }
 
     /**
+     * Renames a step without emitting a reporter notification.
+     *
+     * @param id - Step ID.
+     * @param name - New display name.
+     * @returns Updated step.
+     * @throws When the step is unknown.
+     */
+    async renameStep(id: StepId, name: string): Promise<Step<Status, StepId>> {
+        const step = this.store.get().find((s) => s.id === id);
+
+        if (!step) {
+            throw new ValidationError(`Step not found: ${id}`);
+        }
+
+        const nextStep: Step<Status, StepId> = { ...step, name };
+
+        this.store.set((prev) => prev.map((s) => (s.id === id ? nextStep : s)));
+
+        return nextStep;
+    }
+
+    /**
+     * Forces a step into the failed status with attached error.
+     *
+     * Bypasses transition validation like run() failure path.
+     * Emits exactly one reporter notification.
+     *
+     * @param id - Step ID.
+     * @param error - Failure cause, serialized via toStepError.
+     * @param status - Optional failed status override, defaults to inferred.
+     * @returns Updated failed step.
+     * @throws When the step is unknown.
+     */
+    async fail(
+        id: StepId,
+        error: unknown,
+        status?: Status,
+    ): Promise<Step<Status, StepId>> {
+        const current = this.store.get().find((s) => s.id === id);
+
+        if (!current) {
+            throw new ValidationError(`Step not found: ${id}`);
+        }
+
+        const failed = status ?? this.inferFailedStatus();
+        const failedStep: Step<Status, StepId> = {
+            ...current,
+            status: failed,
+            completedAt: this.clock(),
+            error: toStepError(error),
+        };
+
+        this.store.set((prev) =>
+            prev.map((s) => (s.id === id ? failedStep : s)),
+        );
+
+        if (this.reporter?.onTransition) {
+            await this.reporter.onTransition({
+                step: failedStep,
+                from: current.status,
+                to: failed,
+                all: this.store.get(),
+            });
+        }
+
+        return failedStep;
+    }
+
+    /**
      * Marks every non-terminal step with the cancel/terminal status.
      */
     cancelPending(): void {
@@ -277,7 +362,7 @@ export class LifecycleManager<S extends string> {
             s.toLowerCase().includes('cancel'),
         ) ??
             terminal[0] ??
-            this.config.statuses[this.config.statuses.length - 1]) as S;
+            this.config.statuses[this.config.statuses.length - 1]) as Status;
 
         const now = this.clock();
 
@@ -299,10 +384,12 @@ export class LifecycleManager<S extends string> {
      *
      * @returns Next pending step, or null when none remains.
      */
-    getNextPending(): Step<S> | null {
+    getNextPending(): Step<Status, StepId> | null {
         const pending = this.store
             .get()
-            .find((s: Step<S>) => s.status === this.config.initial);
+            .find(
+                (s: Step<Status, StepId>) => s.status === this.config.initial,
+            );
 
         return pending ?? null;
     }
@@ -313,8 +400,10 @@ export class LifecycleManager<S extends string> {
      * @param status - Status to search for.
      * @returns Matching step, if any.
      */
-    findByStatus(status: S): Step<S> | undefined {
-        return this.store.get().find((s: Step<S>) => s.status === status);
+    findByStatus(status: Status): Step<Status, StepId> | undefined {
+        return this.store
+            .get()
+            .find((s: Step<Status, StepId>) => s.status === status);
     }
 
     /**
@@ -331,15 +420,17 @@ export class LifecycleManager<S extends string> {
         if (terminalFailed.length > 0) {
             return this.store
                 .get()
-                .some((s: Step<S>) =>
-                    (terminalFailed as S[]).includes(s.status),
+                .some((s: Step<Status, StepId>) =>
+                    (terminalFailed as Status[]).includes(s.status),
                 );
         }
 
         // fallback: any step status contains 'fail' is considered failed
         return this.store
             .get()
-            .some((s: Step<S>) => s.status.toLowerCase().includes('fail'));
+            .some((s: Step<Status, StepId>) =>
+                s.status.toLowerCase().includes('fail'),
+            );
     }
 
     /**
@@ -352,9 +443,13 @@ export class LifecycleManager<S extends string> {
      * @throws Rethrows callback errors after marking the step failed.
      */
     async run<R>(
-        id: string,
+        id: StepId,
         fn: () => Promise<R>,
-        transitions?: { running?: S; done?: S; failed?: S },
+        transitions?: {
+            running?: Status;
+            done?: Status;
+            failed?: Status;
+        },
     ): Promise<R> {
         const running = transitions?.running ?? this.inferRunningStatus();
         const done = transitions?.done ?? this.inferDoneStatus();
@@ -385,7 +480,7 @@ export class LifecycleManager<S extends string> {
             const current = steps.find((s) => s.id === id);
 
             if (current) {
-                const failedStep: Step<S> = {
+                const failedStep: Step<Status, StepId> = {
                     ...current,
                     status: failed,
                     completedAt: this.clock(),
@@ -410,12 +505,12 @@ export class LifecycleManager<S extends string> {
         }
     }
 
-    private isTerminal(status: S): boolean {
+    private isTerminal(status: Status): boolean {
         const terminal = this.config.terminal ?? [];
         return terminal.includes(status);
     }
 
-    private inferRunningStatus(): S {
+    private inferRunningStatus(): Status {
         const fromInitial = this.config.transitions[this.config.initial] ?? [];
         return (fromInitial[0] ??
             this.config.statuses.find(
@@ -423,10 +518,10 @@ export class LifecycleManager<S extends string> {
                     s.toLowerCase().includes('progress') ||
                     s.toLowerCase().includes('running'),
             ) ??
-            this.config.statuses[1]) as S;
+            this.config.statuses[1]) as Status;
     }
 
-    private inferDoneStatus(): S {
+    private inferDoneStatus(): Status {
         const terminal = this.config.terminal ?? [];
         return (terminal.find(
             (s: string) =>
@@ -434,10 +529,10 @@ export class LifecycleManager<S extends string> {
                 s.toLowerCase().includes('done'),
         ) ??
             terminal[0] ??
-            this.config.statuses[this.config.statuses.length - 2]) as S;
+            this.config.statuses[this.config.statuses.length - 2]) as Status;
     }
 
-    private inferFailedStatus(): S {
+    private inferFailedStatus(): Status {
         const terminal = this.config.terminal ?? [];
         return (terminal.find((s: string) =>
             s.toLowerCase().includes('fail'),
@@ -445,10 +540,10 @@ export class LifecycleManager<S extends string> {
             this.config.statuses.find((s: string) =>
                 s.toLowerCase().includes('fail'),
             ) ??
-            this.config.statuses[this.config.statuses.length - 1]) as S;
+            this.config.statuses[this.config.statuses.length - 1]) as Status;
     }
 
-    private validateSteps(steps: readonly Step<S>[]): void {
+    private validateSteps(steps: readonly Step<Status, StepId>[]): void {
         const defIds = new Set(this.definitions.map((d) => d.id));
 
         for (const step of steps) {

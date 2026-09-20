@@ -715,4 +715,100 @@ describe('LifecycleManager', () => {
             );
         });
     });
+
+    describe('fail', () => {
+        it('forces failed status with error and single notification', async () => {
+            const onTransition = vi.fn();
+            const manager = createManager({ reporter: { onTransition } });
+
+            const failed = await manager.fail('step-1', new Error('boom'));
+
+            expect(failed.status).toBe('failed');
+            expect(failed.error?.message).toBe('boom');
+            expect(failed.completedAt).toBe(CLOCK);
+            expect(onTransition).toHaveBeenCalledTimes(1);
+            expect(onTransition).toHaveBeenCalledWith(
+                expect.objectContaining({ from: 'pending', to: 'failed' }),
+            );
+        });
+
+        it('uses explicit status override when provided', async () => {
+            const manager = createManager();
+
+            const failed = await manager.fail(
+                'step-1',
+                new Error('boom'),
+                'cancelled',
+            );
+
+            expect(failed.status).toBe('cancelled');
+            expect(failed.error?.message).toBe('boom');
+        });
+
+        it('records failure without reporter', async () => {
+            const manager = createManager();
+
+            const failed = await manager.fail('step-1', new Error('boom'));
+
+            expect(failed.status).toBe('failed');
+            expect(failed.error?.message).toBe('boom');
+        });
+
+        it('throws when step not found', async () => {
+            const manager = createManager();
+
+            await expect(
+                manager.fail('missing', new Error('x')),
+            ).rejects.toThrow(ValidationError);
+        });
+    });
+
+    describe('renameStep', () => {
+        it('renames step without notification', async () => {
+            const onTransition = vi.fn();
+            const manager = createManager({ reporter: { onTransition } });
+
+            const renamed = await manager.renameStep('step-1', 'New name');
+
+            expect(renamed.name).toBe('New name');
+            expect(manager.steps[0]?.name).toBe('New name');
+            expect(onTransition).not.toHaveBeenCalled();
+        });
+
+        it('throws when step not found', async () => {
+            const manager = createManager();
+
+            await expect(manager.renameStep('missing', 'x')).rejects.toThrow(
+                ValidationError,
+            );
+        });
+    });
+
+    describe('fromSnapshot definitions', () => {
+        it('preserves literal ids via definitions override', () => {
+            const manager = createManager();
+            const snapshot = manager.getSnapshotWithMeta({
+                requestId: 'req-1',
+                createdAt: CLOCK,
+            });
+            const definitions = [
+                { id: 'step-1', name: 'Step 1' },
+                { id: 'step-2', name: 'Step 2' },
+            ] as const;
+
+            const restored = LifecycleManager.fromSnapshot<
+                Status,
+                (typeof definitions)[number]['id']
+            >({
+                snapshot,
+                definitions,
+            });
+
+            expect(restored.getDefinitions().map(({ id }) => id)).toEqual([
+                'step-1',
+                'step-2',
+            ]);
+            expect(restored.steps[0]?.id).toBe('step-1');
+        });
+    });
 });
