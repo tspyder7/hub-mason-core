@@ -81,6 +81,7 @@
         "./lifecycle/schemas": null,
         "./lifecycle/schemas/*": null,
         "./github/event": "./dist/github/event/index.js",
+        "./github/actions": "./dist/github/actions/index.js",
         "./github/issues": "./dist/github/issues/index.js",
         "./github/repository": "./dist/github/repository/index.js",
         "./github/client": "./dist/github/client/index.js",
