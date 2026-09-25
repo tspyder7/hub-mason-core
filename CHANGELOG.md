@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.3.0...hub-mason-core-v1.4.0) (2026-09-25)
+
+
+### Features
+
+* add workflow dispatch action ([#19](https://github.com/tspyder7/hub-mason-core/issues/19)) ([d0f1e15](https://github.com/tspyder7/hub-mason-core/commit/d0f1e1573f6d2df6ebd07d91ecd380e57a8a517e))
+
 ## [1.3.0](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.2.1...hub-mason-core-v1.3.0) (2026-09-20)
 
 
