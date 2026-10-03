@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.4.0...hub-mason-core-v1.5.0) (2026-10-03)
+
+
+### Features
+
+* **renderer:** render portal to engine run chain ([#21](https://github.com/tspyder7/hub-mason-core/issues/21)) ([adb470f](https://github.com/tspyder7/hub-mason-core/commit/adb470fa952cfc0ad23bcdd9c47644c9b74bfada))
+
 ## [1.4.0](https://github.com/tspyder7/hub-mason-core/compare/hub-mason-core-v1.3.0...hub-mason-core-v1.4.0) (2026-09-25)
 
 
