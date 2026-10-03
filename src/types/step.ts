@@ -89,6 +89,15 @@ export interface Reporter<
 }
 
 /**
+ * Reference to a single workflow run.
+ */
+export interface WorkflowRunRef {
+    owner?: string;
+    repo?: string;
+    runId?: number;
+}
+
+/**
  * Workflow run metadata used in rendered comments.
  */
 export interface WorkflowMeta {
@@ -98,6 +107,8 @@ export interface WorkflowMeta {
     repo?: string;
     runId?: number;
     actor?: string;
+    portal?: WorkflowRunRef;
+    engine?: WorkflowRunRef;
 }
 
 /**

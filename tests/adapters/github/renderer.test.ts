@@ -74,6 +74,76 @@ describe('renderer', () => {
             );
         });
 
+        it('renders portal run only when engine is missing', () => {
+            const result = renderStatusComment({
+                steps: [],
+                meta: {
+                    ...baseMeta,
+                    portal: { owner: 'octo', repo: 'portal', runId: 456 },
+                },
+                emoji,
+            });
+
+            expect(result).toContain(
+                'https://github.com/octo/portal/actions/runs/456',
+            );
+            expect(result).not.toContain('--->');
+        });
+
+        it('renders engine run only when portal is missing', () => {
+            const result = renderStatusComment({
+                steps: [],
+                meta: {
+                    requestId: 'req-1',
+                    requestType: 'demo',
+                    engine: { owner: 'octo', repo: 'engine', runId: 789 },
+                },
+                emoji,
+            });
+
+            expect(result).toContain(
+                'https://github.com/octo/engine/actions/runs/789',
+            );
+            expect(result).not.toContain('--->');
+        });
+
+        it('renders portal ---> engine chain when both runs are present', () => {
+            const result = renderStatusComment({
+                steps: [],
+                meta: {
+                    ...baseMeta,
+                    portal: { owner: 'octo', repo: 'portal', runId: 456 },
+                    engine: { owner: 'octo', repo: 'engine', runId: 789 },
+                },
+                emoji,
+            });
+
+            expect(result).toContain(
+                'https://github.com/octo/portal/actions/runs/456',
+            );
+            expect(result).toContain(
+                'https://github.com/octo/engine/actions/runs/789',
+            );
+            expect(result).toContain('--->');
+        });
+
+        it('falls back to flat run when structured runs are incomplete', () => {
+            const result = renderStatusComment({
+                steps: [],
+                meta: {
+                    ...baseMeta,
+                    portal: { owner: 'octo', repo: 'portal' },
+                    engine: { owner: 'octo' },
+                },
+                emoji,
+            });
+
+            expect(result).toContain(
+                'https://github.com/octo/repo/actions/runs/123',
+            );
+            expect(result).not.toContain('--->');
+        });
+
         it('omits workflow run when meta incomplete', () => {
             const result = renderStatusComment({
                 steps: [],
@@ -258,6 +328,26 @@ describe('renderer', () => {
 
             expect(result).toContain('unknown');
             expect(result).toContain('actions/runs/1');
+        });
+
+        it('renders portal ---> engine chain in summary when both runs are present', () => {
+            const result = renderSummary({
+                steps: [],
+                meta: {
+                    requestId: 'req-1',
+                    portal: { owner: 'o', repo: 'portal', runId: 456 },
+                    engine: { owner: 'o', repo: 'engine', runId: 789 },
+                },
+                emoji,
+            });
+
+            expect(result).toContain(
+                'https://github.com/o/portal/actions/runs/456',
+            );
+            expect(result).toContain(
+                'https://github.com/o/engine/actions/runs/789',
+            );
+            expect(result).toContain('--->');
         });
 
         it('omits workflow run when meta incomplete', () => {
