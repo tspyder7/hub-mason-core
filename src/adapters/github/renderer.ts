@@ -19,7 +19,7 @@ import type {
     RenderStatusCommentProps,
     RenderSummaryProps,
 } from '../../types/reporter';
-import type { Step, WorkflowMeta } from '../../types/step';
+import type { Step, WorkflowMeta, WorkflowRunRef } from '../../types/step';
 
 const toMarkdownRoot = (children: Root['children']): string =>
     toMarkdown(
@@ -51,7 +51,36 @@ const renderFailedStep = <Status extends string>(
     ...(step.error?.stack ? [code(step.error.stack)] : []),
 ];
 
+const isCompleteRun = (run: WorkflowRunRef | undefined): boolean =>
+    Boolean(run?.owner && run?.repo && run?.runId);
+
+const runLink = (run: WorkflowRunRef): ReturnType<typeof link> =>
+    link(
+        `https://github.com/${run.owner}/${run.repo}/actions/runs/${run.runId}`,
+        String(run.runId),
+    );
+
 const renderWorkflowRun = (meta: WorkflowMeta): Paragraph | null => {
+    const portalComplete = isCompleteRun(meta.portal);
+    const engineComplete = isCompleteRun(meta.engine);
+
+    if (portalComplete && engineComplete) {
+        return paragraph([
+            text('Workflow run: '),
+            runLink(meta.portal!),
+            text(' ---> '),
+            runLink(meta.engine!),
+        ]);
+    }
+
+    if (portalComplete) {
+        return paragraph([text('Workflow run: '), runLink(meta.portal!)]);
+    }
+
+    if (engineComplete) {
+        return paragraph([text('Workflow run: '), runLink(meta.engine!)]);
+    }
+
     if (!meta.owner || !meta.repo || !meta.runId) return null;
     return paragraph([
         text('Workflow run: '),

@@ -5,5 +5,6 @@ export type {
     StepStore,
     Reporter,
     WorkflowMeta,
+    WorkflowRunRef,
     BoundSteps,
 } from '../../types/step';
